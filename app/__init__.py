@@ -42,4 +42,37 @@ def create_app(config_name):
             response= jsonify(results)
             response.status_code= 200
             return response
+
+    @app.route('/shopinglists/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+    def get_shopping_list(id, **kwargs):
+     # retrieve list ids 
+        shoplist = ShoppingList.query.filter_by(id=id).first()
+        if not shoplist:
+            # Raise an HTTPException with a 404 not found status code
+            abort(404)
+
+        if request.method == 'DELETE':
+            shoplist.delete()
+            return {
+            "message": "The Shoping list {} deleted successfully".format(shoplist.id) 
+         }, 200
+
+        elif request.method == 'PUT':
+            title = str(request.data.get('title', ''))
+            shoplist.title = title
+            shoplist.save()
+            response = jsonify({
+                'id': shoplist.id,
+                'title': shoplist.title,
+            })
+            response.status_code = 200
+            return response
+        else:
+            # GET
+            response = jsonify({
+                'id': shoplist.id,
+                'title': shoplist.title
+            })
+            response.status_code = 200
+            return response
     return app
