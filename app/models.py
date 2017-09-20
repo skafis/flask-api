@@ -1,5 +1,45 @@
 from app import db
 
+class Users(db.Model):
+    """
+    users table
+    """
+    __tablename__='users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    username= db.Column(db.String(255))
+    email = db.Column(db.String(300))
+    password = db.Column(db.String(255))
+
+    def __init__(self, username, email, password):
+        self.username = username
+        self.email = email
+        self.password = self.set_password(password)
+        self.authenticated = False
+
+    @staticmethod
+    def set_password(self, password):
+        return bcrypt.generate_password_hash(password)
+
+    def is_active(self):
+        # make all user active
+        return True
+
+    def get_id(self):
+        # return email adress for flask login
+        return self.email
+
+    def is_authenticated(self):
+        return self.authenticated
+
+    def check_password(self, hashed_password, password):
+        # return true or false
+        return bcrypt.check_password_hash(hashed_password, password)
+
+    def is_anonymous(self):
+        # Dont support anonymus users
+        return False
+
 class ShoppingList(db.Model):
     """
     shopping list table
