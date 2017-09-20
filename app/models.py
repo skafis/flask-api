@@ -7,15 +7,10 @@ class ShoppingList(db.Model):
     __tablename__ = 'shoppinglists'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(255))
-    date_created = db.Column(db.DateTime, 
-        default=db.func.current_timestamp())
-    date_modified = db.Column(
-        db.DateTime, default=db.func.current_timestamp(),
-        onupdate=db.func.current_timestamp())
+    title = db.Column(db.String(255))
 
     def __init__(self, title):
-        """initialize with name."""
+        """initialize with title."""
         self.title = title
 
     def save(self):
@@ -31,4 +26,4 @@ class ShoppingList(db.Model):
         db.session.commit()
 
     def __repr__(self):
-        return "<ShoppingList: {}>".format(self.name)
+        return "<ShoppingList: {}>".format(self.title)
