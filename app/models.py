@@ -1,3 +1,5 @@
+from passlib.apps import custom_app_context as pwd_context
+
 from app import db
 
 class Users(db.Model):
@@ -19,7 +21,7 @@ class Users(db.Model):
 
     @staticmethod
     def set_password(self, password):
-        return bcrypt.generate_password_hash(password)
+        return pwd_context.encrypt(password)
 
     def is_active(self):
         # make all user active
@@ -34,7 +36,7 @@ class Users(db.Model):
 
     def check_password(self, hashed_password, password):
         # return true or false
-        return bcrypt.check_password_hash(hashed_password, password)
+        pwd_context.verify(password, self.password)
 
     def is_anonymous(self):
         # Dont support anonymus users
