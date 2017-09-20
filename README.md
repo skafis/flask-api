@@ -17,16 +17,37 @@ a api implementation with flask
  * then run 
    ''' $ flask run '''
 
-### testing using post man
+### testing using post man or curl 
 
-* in your postman app,
+* to test in your terminal paste the curls 
 	the endpoints are 
-	/auth/register
-	/shopinglists
+	/auth/register/
+	/auth/login/
+	/shopinglists/
+	/shopinglists/1/
 
-  now you can add items to list 
-  endp
-  by adding 
-  {
-  	'title': 'Fruits'
-  }
+#/auth/register
+
+*   '''$ curl -H "Accept: application/json" \
+-H "Content-type: application/json" -X POST \
+-d '{"email": "test@test.com", "password": "test"}' \
+http://localhost:5000/auth/register'''
+
+#/auth/login 
+* '''$ curl -H "Accept: application/json" \
+-H "Content-type: application/json" -X POST \
+-d '{"email": "test@test.com", "password": "test"}' \
+http://localhost:5000/auth/login'''
+
+#/shopinglists/
+
+* '''$ curl -H "Accept: application/json" \
+-H "Content-type: application/json" -X POST \
+-d '{"title": "Fruits"}' \
+http://localhost:5000//shopinglists/'''
+
+#/shopinglists/1/
+* '''$ curl -H "Accept: application/json" \
+-H "Content-type: application/json" -X POST \
+-d '{"title": "Fruits"}' \
+http://localhost:5000//shopinglists/'''

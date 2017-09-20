@@ -1,4 +1,4 @@
-from flask import request, jsonify, abort
+from flask import Flask, request, jsonify, abort, session
 from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
 
@@ -24,10 +24,11 @@ def create_app(config_name):
         password=str(request.data.get('password', ''))
 
         if username is None or password is None:
-            abort(400) # missing arguments
+            status = 'input can not be empty '# missing arguments
+            return jsonify({'result': status})
 
         if Users.query.filter_by(username = username).first() is not None:
-            abort(400) # existing user
+            status = 'this user is already registered'# existing user
 
         user = Users(username = username)
         # user.hash_password(password)
@@ -36,8 +37,34 @@ def create_app(config_name):
         db.session.add(user)
         db.session.commit()
 
-        return jsonify({ 'username': user.username }), 201,
+        return jsonify({ 'username': user.username, 'result': status}), 201,
         {'Location': url_for('get_user', id = user.id, _external = True)}
+
+    # return the user
+
+    @app.route('/api/users/<int:id>')
+    def get_user(id):
+        user = Users.query.get(id)
+        if not user:
+            status = "No user Found"
+            return jsonify({'result': status})
+
+        return jsonify({'username': user.username})
+
+    # login  method 
+    @app.route('/auth/login', methods=['POST'])
+    def login():
+        password=str(request.data.get('password', ''))
+        user = User.query.filter_by(username =str(request.data.get('username', ''))).first()
+
+        if user and user.hash_password(password):
+            session['logged_in'] = True
+            status = True
+
+        else:
+            status = False
+
+        return jsonify({'result': status})
 
     @app.route('/shopinglists/', methods=['POST','GET'])
     def shoppinglists():
