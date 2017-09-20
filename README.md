@@ -19,10 +19,13 @@ a api implementation with flask
 
 ### testing using post man
 
-* in your postman app, use this link 
-  ''' http://127.0.0.1:5000/shopinglists '''
+* in your postman app,
+	the endpoints are 
+	/auth/register
+	/shopinglists
 
   now you can add items to list 
+  endp
   by adding 
   {
   	'title': 'Fruits'
