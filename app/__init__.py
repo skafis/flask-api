@@ -4,10 +4,11 @@ from flask_sqlalchemy import SQLAlchemy
 
 from instance.config import app_config
 
+
 db = SQLAlchemy()
 
 def create_app(config_name):
-    from .models import ShoppingList
+    from .models import ShoppingList, Users
 
     app = FlaskAPI(__name__, instance_relative_config=True)
     app.config.from_object(app_config[config_name])
@@ -17,17 +18,26 @@ def create_app(config_name):
 
     @app.route('/auth/register/', methods = ['POST'])
     def new_user():
-        username = request.json.get('username')
-        password = request.json.get('password')
+        # json_data = request.json
+        username =str(request.data.get('username', '')),
+        email=str(request.data.get('email', '')),
+        password=str(request.data.get('password', ''))
+
         if username is None or password is None:
             abort(400) # missing arguments
-        if User.query.filter_by(username = username).first() is not None:
+
+        if Users.query.filter_by(username = username).first() is not None:
             abort(400) # existing user
-        user = User(username = username)
-        user.hash_password(password)
+
+        user = Users(username = username)
+        # user.hash_password(password)
+
+        # save user session to db
         db.session.add(user)
         db.session.commit()
-        return jsonify({ 'username': user.username }), 201, {'Location': url_for('get_user', id = user.id, _external = True)}
+
+        return jsonify({ 'username': user.username }), 201,
+        {'Location': url_for('get_user', id = user.id, _external = True)}
 
     @app.route('/shopinglists/', methods=['POST','GET'])
     def shoppinglists():
@@ -55,6 +65,7 @@ def create_app(config_name):
             response= jsonify(results)
             response.status_code= 200
             return response
+
 
     @app.route('/shopinglists/<int:id>', methods=['GET', 'PUT', 'DELETE'])
     def get_shopping_list(id, **kwargs):

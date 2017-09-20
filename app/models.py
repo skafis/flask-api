@@ -9,19 +9,18 @@ class Users(db.Model):
     __tablename__='users'
 
     id = db.Column(db.Integer, primary_key=True)
-    username= db.Column(db.String(255))
+    username = db.Column(db.String(300))
     email = db.Column(db.String(300))
-    password = db.Column(db.String(255))
+    password_hash = db.Column(db.String(128))
 
-    def __init__(self, username, email, password):
-        self.username = username
-        self.email = email
-        self.password = self.set_password(password)
-        self.authenticated = False
+    # def __init__(self, email, password):
+    #     self.email = email
+    #     self.password = password
+    #     self.authenticated = False
 
     @staticmethod
-    def set_password(self, password):
-        return pwd_context.encrypt(password)
+    def hash_password(self):
+        self.password_hash = pwd_context.encrypt()
 
     def is_active(self):
         # make all user active
