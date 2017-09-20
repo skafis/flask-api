@@ -15,7 +15,7 @@ def create_app(config_name):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
-    @app.route('/api/users', methods = ['POST'])
+    @app.route('/auth/register/', methods = ['POST'])
     def new_user():
         username = request.json.get('username')
         password = request.json.get('password')
@@ -28,7 +28,7 @@ def create_app(config_name):
         db.session.add(user)
         db.session.commit()
         return jsonify({ 'username': user.username }), 201, {'Location': url_for('get_user', id = user.id, _external = True)}
-    
+
     @app.route('/shopinglists/', methods=['POST','GET'])
     def shoppinglists():
         if request.method == "POST":
