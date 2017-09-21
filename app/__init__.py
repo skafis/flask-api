@@ -25,19 +25,19 @@ def create_app(config_name):
         email=str(request.data.get('email', '')),
         password=str(request.data.get('password', ''))
 
-        app.logger.warning('A warning occurred (%d apples)', 42)
-        app.logger.error('An error occurred')
-        app.logger.info('Info')
+        # app.logger.warning('A warning occurred (%d apples)', 42)
         
+        # 
+
         if username is None or password is None:
-            status = 'input can not be empty '# missing arguments
-            return jsonify({'result': status})
+            app.logger.error('input can not be empty ')# missing arguments
 
         if Users.query.filter_by(username = username).first() is not None:
-            status = 'this user is already registered'# existing user
+            app.logger.error('This user is already registered')# existing user
 
         user = Users(username = username)
         user.hash_password(password)
+        app.logger.info('new User created')
 
         # save user session to db
         db.session.add(user)
@@ -52,7 +52,7 @@ def create_app(config_name):
     def get_user(id):
         user = Users.query.get(id)
         if not user:
-            status = "No user Found"
+            app.logger.error("No user Found")
             return jsonify({'result': status})
 
         return jsonify({'username': user.username})
@@ -66,8 +66,10 @@ def create_app(config_name):
         if user and user.hash_password(password):
             session['logged_in'] = True
             status = True
+            app.logger.info('user logged in')
 
         else:
+            app.logger.error("User not logged in")
             status = False
 
         return jsonify({'result': status})
