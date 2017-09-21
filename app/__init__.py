@@ -25,6 +25,10 @@ def create_app(config_name):
         email=str(request.data.get('email', '')),
         password=str(request.data.get('password', ''))
 
+        app.logger.warning('A warning occurred (%d apples)', 42)
+        app.logger.error('An error occurred')
+        app.logger.info('Info')
+        
         if username is None or password is None:
             status = 'input can not be empty '# missing arguments
             return jsonify({'result': status})
