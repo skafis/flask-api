@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, abort, session
 from flask_httpauth import HTTPBasicAuth
 from flask_api import FlaskAPI
+from logging.handlers import RotatingFileHandler
 from flask_sqlalchemy import SQLAlchemy
 
 from instance.config import app_config
@@ -72,6 +73,18 @@ def create_app(config_name):
     def get_auth_token():
         token = g.user.generate_auth_token()
         return jsonify({ 'token': token.decode('ascii') })
+
+    @auth.verify_password
+    def verify_password(username_or_token, password):
+        # first try to authenticate by token
+        user = Users.verify_auth_token(username_or_token)
+        if not user:
+            # try to authenticate with username/password
+            user = Users.query.filter_by(username=username_or_token).first()
+            if not user or not user.verify_password(password):
+                return False
+        g.user = user
+        return True
 
     @app.route('/shopinglists/', methods=['POST','GET'])
     def shoppinglists():
