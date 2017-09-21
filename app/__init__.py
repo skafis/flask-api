@@ -27,23 +27,6 @@ def create_app(config_name):
 
         return jsonify({'username': user.username})
 
-    # login  method 
-    @app.route('/auth/login', methods=['POST'])
-    def login():
-        password=str(request.data.get('password', ''))
-        user = User.query.filter_by(username =str(request.data.get('username', ''))).first()
-
-        if user and user.hash_password(password):
-            session['logged_in'] = True
-            status = True
-            app.logger.info('user logged in')
-
-        else:
-            app.logger.error("User not logged in")
-            status = False
-
-        return jsonify({'result': status})
-
     @app.route('/api/token')
     @auth.login_required
     def get_auth_token():

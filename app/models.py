@@ -1,7 +1,8 @@
 import jwt
 from datetime import datetime, timedelta
+from flask_bcrypt import Bcrypt
 
-from passlib.apps import custom_app_context as pwd_context
+# from passlib.apps import custom_app_context as pwd_context
 from flask_api import FlaskAPI
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
@@ -25,13 +26,13 @@ class Users(db.Model):
         initialize class
         '''
         self.email = email
-        self.password = password
+        self.password = Bcrypt().generate_password_hash(password).decode()
 
-    def hash_password(self, password):
-        '''
-        generate hash to store in db
-        '''
-        self.password = pwd_context.encrypt(password)
+    # def hash_password(self, password):
+    #     '''
+    #     generate hash to store in db
+    #     '''
+    #     self.password = pwd_context.encrypt(password)
 
     def save(self):
         """
@@ -45,7 +46,7 @@ class Users(db.Model):
         '''
         check pasword provided with hash in db
         '''
-        return pwd_context.verify(password, self.password_hash)
+        return Bcrypt().check_password_hash(self.password, password)
 
     def generate_token(self, user_id):
         """ Generates the access token"""
