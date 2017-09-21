@@ -17,15 +17,31 @@ class Users(db.Model):
     email = db.Column(db.String(300))
     password_hash = db.Column(db.String(128))
 
-    # def __init__(self, email, password):
-    #     self.email = email
-    #     self.password = password
-    #     self.authenticated = False
+    def __init__(self, email, password):
+        '''
+        initialize class
+        '''
+        self.email = email
+        self.password_hash = password_hash
 
     def hash_password(self, password):
+        '''
+        generate hash to store in db
+        '''
         self.password_hash = pwd_context.encrypt(password)
 
+    def save(self):
+        """
+        Save a user to the database.
+        """
+        db.session.add(self)
+        db.session.commit()
+
+
     def verify_password(self, password):
+        '''
+        check pasword provided with hash in db
+        '''
         return pwd_context.verify(password, self.password_hash)
 
     def generate_auth_token(self, expiration = 600):
@@ -37,17 +53,16 @@ class Users(db.Model):
         # make all user active
         return True
 
+    @staticmethod
+    def get_all(user_id):
+        """This method gets all the bucketlists for a given user."""
+        return ShoppingList.query.filter_by(created_by=user_id)
+
     def get_id(self):
         # return email adress for flask login
         return self.email
 
-    def is_authenticated(self):
-        return self.authenticated
-
-    def is_anonymous(self):
-        # Dont support anonymus users
-        return False
-
+    
     def verify_auth_token(token):
         s = Serializer(app.config['SECRET_KEY'])
         try:
@@ -58,6 +73,15 @@ class Users(db.Model):
             return None # invalid token
         user = Users.query.get(data['id'])
         return user
+
+    def delete(self):
+        """Deletes a given shoppings."""
+        db.session.delete(self)
+        db.session.commit()
+
+    def __repr__(self):
+        """Return a representation of a lists instance."""
+        return "<ShoppingList: {}>".format(self.name)
 
 
 

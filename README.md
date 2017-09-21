@@ -28,6 +28,7 @@ a api implementation with flask
 
 * to test in your terminal paste the curls 
 	the endpoints are 
+
 		/auth/register/
 		/auth/login/
 		/shopinglists/

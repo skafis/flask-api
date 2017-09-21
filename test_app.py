@@ -56,7 +56,7 @@ class ShoppingList(unittest.TestCase):
         self.assertIn('meaty', str(results.data))
 
     def tearDown(self):
-        """teardown all initialized variables."""
+        """close all connections."""
         with self.app.app_context():
             # drop all tables
             db.session.remove()

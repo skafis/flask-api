@@ -107,6 +107,7 @@ def create_app(config_name):
                  return response
         else:
             shoplist = ShoppingList.get_all()
+            email
             results = []
 
             for shop_list in shoplist:
