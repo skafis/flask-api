@@ -32,7 +32,7 @@ def create_app(config_name):
     def get_auth_token():
         token = g.user.generate_auth_token()
         return jsonify({ 'token': token.decode('ascii') })
-        
+
 
     @auth.verify_password
     def verify_password(username_or_token, password):
@@ -102,7 +102,7 @@ def create_app(config_name):
                 return make_response(jsonify(response)), 401
 
 
-    @app.route('/shopinglists/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+    @app.route('/api/dashboard/<int:id>', methods=['GET', 'PUT', 'DELETE'])
     def get_shopping_list(id, **kwargs):
      # retrieve list ids 
         shoplist = ShoppingList.query.filter_by(id=id).first()

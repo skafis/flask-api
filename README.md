@@ -31,8 +31,8 @@ a api implementation with flask
 
 		/auth/register/
 		/auth/login/
-		/shopinglists/
-		/shopinglists/1/
+		/dashboard/
+		/dashboard/1/
 		/api/token
 
 # /auth/register
@@ -48,18 +48,18 @@ a api implementation with flask
 	-d '{"email": "test@test.com", "password": "test"}' \
 	http://localhost:5000/auth/login
 
-# /shopinglists/
+# /dashboard/
 
 	$ curl -H "Accept: application/json" \
 	-H "Content-type: application/json" -X POST \
 	-d '{"title": "Fruits"}' \
-	http://localhost:5000//shopinglists/
+	http://localhost:5000/dashboard/
 
-# /shopinglists/1/
+# /dashboard/1/
 	$ curl -H "Accept: application/json" \
 	-H "Content-type: application/json" -X POST \
 	-d '{"title": "Fruits"}' \
-	http://localhost:5000//shopinglists/
+	http://localhost:5000/dashboard/1/
 
 # /api/token/
 	```$ curl -u miguel:python -i -X GET http://127.0.0.1:5000/api/token```
