@@ -1,6 +1,7 @@
 import jwt
 from datetime import datetime, timedelta
 from flask_bcrypt import Bcrypt
+from flask import current_app
 
 # from passlib.apps import custom_app_context as pwd_context
 from flask_api import FlaskAPI
@@ -28,11 +29,6 @@ class Users(db.Model):
         self.email = email
         self.password = Bcrypt().generate_password_hash(password).decode()
 
-    # def hash_password(self, password):
-    #     '''
-    #     generate hash to store in db
-    #     '''
-    #     self.password = pwd_context.encrypt(password)
 
     def save(self):
         """
@@ -49,7 +45,7 @@ class Users(db.Model):
         return Bcrypt().check_password_hash(self.password, password)
 
     def generate_token(self, user_id):
-        """ Generates the access token"""
+        """Generates the access token to be used as the Authorization header"""
 
         try:
             # set up a payload with an expiration time
