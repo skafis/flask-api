@@ -1,3 +1,6 @@
+import jwt
+from datetime import datetime, timedelta
+
 from passlib.apps import custom_app_context as pwd_context
 from flask_api import FlaskAPI
 from itsdangerous import (TimedJSONWebSignatureSerializer
@@ -15,20 +18,20 @@ class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(300))
     email = db.Column(db.String(300))
-    password_hash = db.Column(db.String(128))
+    password = db.Column(db.String(128))
 
     def __init__(self, email, password):
         '''
         initialize class
         '''
         self.email = email
-        self.password_hash = password_hash
+        self.password = password
 
     def hash_password(self, password):
         '''
         generate hash to store in db
         '''
-        self.password_hash = pwd_context.encrypt(password)
+        self.password = pwd_context.encrypt(password)
 
     def save(self):
         """
@@ -44,9 +47,28 @@ class Users(db.Model):
         '''
         return pwd_context.verify(password, self.password_hash)
 
-    def generate_auth_token(self, expiration = 600):
-        s = Serializer(app.config['SECRET_KEY'], expires_in = expiration)
-        return s.dumps({ 'id': self.id })
+    def generate_token(self, user_id):
+        """ Generates the access token"""
+
+        try:
+            # set up a payload with an expiration time
+            payload = {
+                'exp': datetime.utcnow() + timedelta(minutes=5),
+                'iat': datetime.utcnow(),
+                'sub': user_id
+            }
+            # create the byte string token using the payload and the SECRET key
+            jwt_string = jwt.encode(
+                payload,
+                current_app.config.get('SECRET'),
+                algorithm='HS256'
+            )
+            return jwt_string
+
+        except Exception as e:
+            # return an error in string format if an exception occurs
+            return str(e)
+
 
     @staticmethod
     def is_active(self):
@@ -58,21 +80,20 @@ class Users(db.Model):
         """This method gets all the bucketlists for a given user."""
         return ShoppingList.query.filter_by(created_by=user_id)
 
-    def get_id(self):
-        # return email adress for flask login
-        return self.email
-
     
-    def verify_auth_token(token):
-        s = Serializer(app.config['SECRET_KEY'])
+    @staticmethod
+    def decode_token(token):
+        """Decodes the access token from the Authorization header."""
         try:
-            data = s.loads(token)
-        except SignatureExpired:
-            return None # valid token, but expired
-        except BadSignature:
-            return None # invalid token
-        user = Users.query.get(data['id'])
-        return user
+            # try to decode the token using our SECRET variable
+            payload = jwt.decode(token, current_app.config.get('SECRET'))
+            return payload['sub']
+        except jwt.ExpiredSignatureError:
+            # the token is expired, return an error string
+            return "Expired token. Please login to get a new token"
+        except jwt.InvalidTokenError:
+            # the token is invalid, return an error string
+            return "Invalid token. Please register or login"
 
     def delete(self):
         """Deletes a given shoppings."""

@@ -18,36 +18,6 @@ def create_app(config_name):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
-    @app.route('/auth/register/', methods = ['POST'])
-    def new_user():
-        # json_data = request.json
-        username =str(request.data.get('username', '')),
-        email=str(request.data.get('email', '')),
-        password=str(request.data.get('password', ''))
-
-        # app.logger.warning('A warning occurred (%d apples)', 42)
-        
-        # 
-
-        if username is None or password is None:
-            app.logger.error('input can not be empty ')# missing arguments
-
-        if Users.query.filter_by(username = username).first() is not None:
-            app.logger.error('This user is already registered')# existing user
-
-        user = Users(username = username)
-        user.hash_password(password)
-        app.logger.info('new User created')
-
-        # save user session to db
-        db.session.add(user)
-        db.session.commit()
-
-        return jsonify({ 'username': user.username}), 201,
-        {'Location': url_for('get_user', id = user.id, _external = True)}
-
-    # return the user
-
     @app.route('/api/users/<int:id>')
     def get_user(id):
         user = Users.query.get(id)
@@ -153,4 +123,10 @@ def create_app(config_name):
             })
             response.status_code = 200
             return response
+
+
+      # import the authentication blueprint and register it on the app
+    from .auth import auth_blueprint
+    app.register_blueprint(auth_blueprint)
+
     return app

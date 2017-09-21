@@ -40,7 +40,7 @@ a api implementation with flask
 	$ curl -H "Accept: application/json" \
 	-H "Content-type: application/json" -X POST \
 	-d '{"email": "test@test.com", "password": "test"}' \
-	http://localhost:5000/auth/register/
+	http://localhost:5000/auth/register
 
 # /auth/login 
 	$ curl -H "Accept: application/json" \
