@@ -1,5 +1,6 @@
 from passlib.apps import custom_app_context as pwd_context
-
+from itsdangerous import (TimedJSONWebSignatureSerializer
+                          as Serializer, BadSignature, SignatureExpired)
 from app import db
 
 class Users(db.Model):
@@ -18,10 +19,26 @@ class Users(db.Model):
     #     self.password = password
     #     self.authenticated = False
 
-    @staticmethod
-    def hash_password(self):
-        self.password_hash = pwd_context.encrypt()
+    def hash_password(self, password):
+        self.password_hash = pwd_context.encrypt(password)
 
+    @auth.verify_password
+    def verify_password(username_or_token, password):
+        # first try to authenticate by token
+        user = Users.verify_auth_token(username_or_token)
+        if not user:
+            # try to authenticate with username/password
+            user = Users.query.filter_by(username = username_or_token).first()
+            if not user or not user.verify_password(password):
+                return False
+        g.user = user
+        return True
+
+    def generate_auth_token(self, expiration = 600):
+        s = Serializer(app.config['SECRET_KEY'], expires_in = expiration)
+        return s.dumps({ 'id': self.id })
+
+    @staticmethod
     def is_active(self):
         # make all user active
         return True
@@ -33,13 +50,20 @@ class Users(db.Model):
     def is_authenticated(self):
         return self.authenticated
 
-    def check_password(self, hashed_password, password):
-        # return true or false
-        pwd_context.verify(password, self.password)
-
     def is_anonymous(self):
         # Dont support anonymus users
         return False
+
+    def verify_auth_token(token):
+        s = Serializer(app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except SignatureExpired:
+            return None # valid token, but expired
+        except BadSignature:
+            return None # invalid token
+        user = Users.query.get(data['id'])
+        return user
 
 class ShoppingList(db.Model):
     """
