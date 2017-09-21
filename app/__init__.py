@@ -1,10 +1,11 @@
 from flask import Flask, request, jsonify, abort, session
+from flask_httpauth import HTTPBasicAuth
 from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
 
 from instance.config import app_config
 
-
+auth = HTTPBasicAuth()
 db = SQLAlchemy()
 
 def create_app(config_name):
@@ -31,13 +32,13 @@ def create_app(config_name):
             status = 'this user is already registered'# existing user
 
         user = Users(username = username)
-        # user.hash_password(password)
+        user.hash_password(password)
 
         # save user session to db
         db.session.add(user)
         db.session.commit()
 
-        return jsonify({ 'username': user.username, 'result': status}), 201,
+        return jsonify({ 'username': user.username}), 201,
         {'Location': url_for('get_user', id = user.id, _external = True)}
 
     # return the user
@@ -65,6 +66,12 @@ def create_app(config_name):
             status = False
 
         return jsonify({'result': status})
+
+    @app.route('/api/token')
+    @auth.login_required
+    def get_auth_token():
+        token = g.user.generate_auth_token()
+        return jsonify({ 'token': token.decode('ascii') })
 
     @app.route('/shopinglists/', methods=['POST','GET'])
     def shoppinglists():
