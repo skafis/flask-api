@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/skafis/flask-api.svg?branch=master)](https://travis-ci.org/skafis/flask-api)
+[![Coverage Status](https://coveralls.io/repos/github/skafis/flask-api/badge.svg?branch=master)](https://coveralls.io/github/skafis/flask-api?branch=master)
 # flask-api
 a api implementation with flask
 
