@@ -1,8 +1,11 @@
 from passlib.apps import custom_app_context as pwd_context
+from flask_api import FlaskAPI
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
+from instance.config import app_config
 from app import db
 
+app = FlaskAPI(__name__, instance_relative_config=True)
 class Users(db.Model):
     """
     users table
@@ -22,17 +25,8 @@ class Users(db.Model):
     def hash_password(self, password):
         self.password_hash = pwd_context.encrypt(password)
 
-    @auth.verify_password
-    def verify_password(username_or_token, password):
-        # first try to authenticate by token
-        user = Users.verify_auth_token(username_or_token)
-        if not user:
-            # try to authenticate with username/password
-            user = Users.query.filter_by(username = username_or_token).first()
-            if not user or not user.verify_password(password):
-                return False
-        g.user = user
-        return True
+    def verify_password(self, password):
+        return pwd_context.verify(password, self.password_hash)
 
     def generate_auth_token(self, expiration = 600):
         s = Serializer(app.config['SECRET_KEY'], expires_in = expiration)
@@ -64,6 +58,8 @@ class Users(db.Model):
             return None # invalid token
         user = Users.query.get(data['id'])
         return user
+
+
 
 class ShoppingList(db.Model):
     """
